@@ -1,23 +1,44 @@
-/* Cleatpin v1 drawing. Placeholder art: thick ink, flat dock colors. */
+/* DESIGN BRIEF
+   Game: Cleatpin, original HTML5 canvas tower defense. English. Landscape first, touch readable.
+   Technology: vanilla Canvas 2D, classic scripts, relative paths. No engine, no CDN.
+   Platform: web, 1280×720. Sound: Music and Effects sliders only, same localStorage save.
+   Style: Storybook Paper + Cozy Workshop. Paper cards and dashed frames own the menus.
+   Wood, rope, and dock props own the playfield. Type is Baloo 2 for titles and Nunito for UI.
+   Buttons keep ink outlines, hard lips, and hard shadows. Play is the one green CTA.
+   Characters: Bosun Reed, Mara, Pip, and the boat enemies already in v1. No new hero.
+   Scene: warm daylight cove, ochre, teal, rope-tan. Not a dark pirate screen. */
 (function (root) {
   "use strict";
   var C = root.Cleatpin;
   var P = C.PAL;
-  C.menu.settingsButton = { x: 500, y: 588, w: 280, h: 64 };
+  C.menu.settingsButton = { x: 1188, y: 20, w: 72, h: 72 };
   C.menu.settingsMusic = { x: 440, y: 260, w: 400, h: 28 };
   C.menu.settingsSfx = { x: 440, y: 340, w: 400, h: 28 };
   C.menu.settingsDone = { x: 500, y: 450, w: 280, h: 56 };
 
   function font(px) {
-    return "700 " + px + "px Trebuchet MS, Segoe UI, sans-serif";
+    return "700 " + px + "px Nunito, Trebuchet MS, sans-serif";
+  }
+
+  function displayFont(px) {
+    return "700 " + px + "px \"Baloo 2\", Nunito, Trebuchet MS, sans-serif";
   }
 
   function panel(ctx, x, y, w, h) {
+    ctx.fillStyle = P.ink;
+    ctx.fillRect(x + 6, y + 7, w, h);
+    ctx.fillStyle = "#E7D3A8";
+    ctx.fillRect(x, y + 6, w, h - 4);
     ctx.fillStyle = P.paper;
-    ctx.fillRect(x, y, w, h);
+    ctx.fillRect(x, y, w, h - 6);
     ctx.lineWidth = 4;
-    ctx.strokeStyle = P.ink;
-    ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
+    ctx.strokeStyle = "#6B4423";
+    ctx.strokeRect(x + 2, y + 2, w - 4, h - 10);
+    ctx.setLineDash([7, 5]);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#C4A574";
+    ctx.strokeRect(x + 12, y + 12, w - 24, h - 30);
+    ctx.setLineDash([]);
   }
 
   function label(ctx, text, x, y, size, color, align) {
@@ -49,12 +70,34 @@
   }
 
   function button(ctx, r, text, primary) {
-    ctx.fillStyle = primary === false ? P.paper : P.teal;
-    ctx.fillRect(r.x, r.y, r.w, r.h);
-    ctx.lineWidth = 4;
+    var go = primary === true;
+    var system = primary === "system";
+    var face = go ? "#3E7C4A" : system ? "#1F6F6A" : P.paper;
+    var lip = go ? "#245231" : system ? "#134E4A" : "#C4A574";
+    var fg = go || system ? "#F7FBFC" : P.ink;
+    ctx.fillStyle = P.ink;
+    ctx.fillRect(r.x + 4, r.y + 5, r.w, r.h);
+    ctx.fillStyle = lip;
+    ctx.fillRect(r.x, r.y + 6, r.w, r.h - 2);
+    ctx.fillStyle = face;
+    ctx.fillRect(r.x, r.y, r.w, r.h - 6);
+    ctx.lineWidth = 3;
     ctx.strokeStyle = P.ink;
-    ctx.strokeRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4);
-    label(ctx, text, r.x + r.w / 2, r.y + r.h / 2, 22, primary === false ? P.ink : P.paper, "center");
+    ctx.strokeRect(r.x + 1.5, r.y + 1.5, r.w - 3, r.h - 8);
+    ctx.fillStyle = "rgba(255,255,255,0.32)";
+    ctx.fillRect(r.x + 8, r.y + 6, Math.max(8, r.w - 16), 5);
+    ctx.font = font(Math.min(22, Math.max(13, Math.floor(r.h * 0.34))));
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    var tx = r.x + r.w / 2;
+    var ty = r.y + (r.h - 6) / 2;
+    if (fg !== P.ink) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = P.ink;
+      ctx.strokeText(text, tx, ty);
+    }
+    ctx.fillStyle = fg;
+    ctx.fillText(text, tx, ty);
   }
 
   function strokePath(ctx, path, width, color) {
@@ -81,28 +124,17 @@
     N: ["10001", "11001", "10101", "10011", "10001", "10001", "10001"]
   };
 
-  function drawWordmark(ctx, x, y, cell) {
-    var word = "CLEATPIN";
+  function drawWordmark(ctx, x, y) {
     ctx.save();
-    ctx.translate(x, y);
-    for (var i = 0; i < word.length; i++) {
-      var rows = GLYPH[word.charAt(i)];
-      for (var r = 0; r < rows.length; r++) {
-        for (var c = 0; c < rows[r].length; c++) {
-          if (rows[r].charAt(c) !== "1") continue;
-          ctx.fillStyle = P.wood;
-          ctx.fillRect(i * cell * 6 + c * cell, r * cell, cell - 1, cell - 1);
-          ctx.strokeStyle = P.ink;
-          ctx.lineWidth = 2;
-          ctx.strokeRect(i * cell * 6 + c * cell, r * cell, cell - 1, cell - 1);
-        }
-      }
-      if (word.charAt(i) === "T") {
-        ctx.fillStyle = P.iron;
-        ctx.fillRect(i * cell * 6 + cell * 1.2, cell * 2, cell * 2.6, cell * 1.3);
-        ctx.strokeRect(i * cell * 6 + cell * 1.2, cell * 2, cell * 2.6, cell * 1.3);
-      }
-    }
+    ctx.font = displayFont(78);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 8;
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = P.ink;
+    ctx.strokeText("Cleatpin", x, y);
+    ctx.fillStyle = P.ochre;
+    ctx.fillText("Cleatpin", x, y);
     ctx.restore();
   }
 
@@ -453,6 +485,23 @@
     ctx.strokeStyle = P.ink;
     ctx.lineWidth = 3;
     ctx.stroke();
+    ctx.fillStyle = "#F7FBFC";
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = 3;
+    [[430, 78, 70], [860, 62, 84]].forEach(function (c) {
+      var x = c[0];
+      var y = c[1];
+      var w = c[2];
+      ctx.beginPath();
+      ctx.moveTo(x - w, y);
+      ctx.quadraticCurveTo(x - w * 0.7, y - w * 0.85, x - w * 0.15, y - w * 0.45);
+      ctx.quadraticCurveTo(x + w * 0.15, y - w, x + w * 0.45, y - w * 0.4);
+      ctx.quadraticCurveTo(x + w, y - w * 0.75, x + w * 0.85, y);
+      ctx.quadraticCurveTo(x + w * 0.2, y + w * 0.38, x - w, y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    });
     ctx.fillStyle = P.seaweed;
     ctx.beginPath();
     ctx.moveTo(0, 210);
@@ -773,7 +822,11 @@
     ctx.fillRect(0, 0, 1280, 720);
     if (m.modal === "pause") {
       panel(ctx, 400, 150, 480, 460);
-      label(ctx, "Paused", 640, 190, 28, P.ink, "center");
+      ctx.font = displayFont(36);
+      ctx.fillStyle = P.ink;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Paused", 640, 186);
       var rects = C.modalRects(m);
       button(ctx, rects[0], "Resume", true);
       button(ctx, rects[1], "Restart", false);
@@ -810,7 +863,14 @@
     } else if (m.modal === "victory" || m.modal === "defeat") {
       panel(ctx, 380, 140, 520, 420);
       var win = m.modal === "victory";
-      label(ctx, win ? "The jetty held." : "The jetty leaked.", 640, 180, 28, win ? P.ink : P.signal, "center");
+      ctx.font = displayFont(34);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = P.ink;
+      ctx.strokeText(win ? "The jetty held." : "The jetty leaked.", 640, 178);
+      ctx.fillStyle = win ? "#3E7C4A" : P.signal;
+      ctx.fillText(win ? "The jetty held." : "The jetty leaked.", 640, 178);
       if (win) {
         for (var s = 0; s < 3; s++) drawStar(ctx, 560 + s * 40, 230, s < m.result.stars);
         label(ctx, "Hull " + m.result.hull, 640, 270, 20, P.ink, "center");
@@ -861,18 +921,42 @@
       ctx.lineTo(i * 80, 720);
       ctx.stroke();
     }
-    panel(ctx, 250, 70, 780, 200);
-    drawWordmark(ctx, 310, 90, 8);
-    drawPip(ctx, 900, 130, 0);
-    label(ctx, C.COPY.logline, 640, 210, 20, P.ink, "center");
+    panel(ctx, 220, 78, 840, 210);
+    drawWordmark(ctx, 640, 150);
+    drawPip(ctx, 980, 118, 0);
+    label(ctx, C.COPY.logline, 640, 230, 22, P.ink, "center");
     button(ctx, C.menu.titlePlay, "Play", true);
-    button(ctx, C.menu.settingsButton, "Settings", false);
+    button(ctx, C.menu.settingsButton, "", "system");
+    drawSlidersIcon(ctx, C.menu.settingsButton.x + 36, C.menu.settingsButton.y + 28);
+  }
+
+  function drawSlidersIcon(ctx, x, y) {
+    ctx.save();
+    ctx.strokeStyle = "#F7FBFC";
+    ctx.fillStyle = "#F7FBFC";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(x - 16, y - 10);
+    ctx.lineTo(x + 16, y - 10);
+    ctx.moveTo(x - 16, y + 8);
+    ctx.lineTo(x + 16, y + 8);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x - 4, y - 10, 4, 0, Math.PI * 2);
+    ctx.arc(x + 6, y + 8, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   function drawSettings(ctx, save) {
     drawSkyAndWater(ctx);
     panel(ctx, 340, 120, 600, 400);
-    label(ctx, "Settings", 640, 170, 32, P.ink, "center");
+    ctx.font = displayFont(40);
+    ctx.fillStyle = P.ink;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Settings", 640, 168);
     label(ctx, "Music", C.menu.settingsMusic.x, C.menu.settingsMusic.y - 16, 18, P.ink, "left");
     slider(ctx, C.menu.settingsMusic, save.settings.music);
     label(ctx, "Effects", C.menu.settingsSfx.x, C.menu.settingsSfx.y - 16, 18, P.ink, "left");
@@ -883,10 +967,7 @@
   }
 
   function drawIntro(ctx) {
-    ctx.fillStyle = P.seaDeep;
-    ctx.fillRect(0, 0, 1280, 720);
-    ctx.fillStyle = P.seaMid;
-    ctx.fillRect(0, 220, 1280, 160);
+    drawSkyAndWater(ctx);
     var p = C.menu.introPanel;
     panel(ctx, p.x, p.y, p.w, p.h);
     wrap(ctx, C.COPY.intro, p.x + 36, p.y + 36, p.w - 72, 22, P.ink, 32);
@@ -947,10 +1028,32 @@
   }
 
   function drawSelect(ctx, save) {
-    ctx.fillStyle = P.seaDeep;
-    ctx.fillRect(0, 0, 1280, 720);
+    drawSkyAndWater(ctx);
+    ctx.fillStyle = P.plank;
+    ctx.fillRect(0, 470, 1280, 250);
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, 470);
+    ctx.lineTo(1280, 470);
+    ctx.stroke();
+    ctx.strokeStyle = P.wood;
+    ctx.lineWidth = 2;
+    for (var plank = 0; plank < 16; plank++) {
+      ctx.beginPath();
+      ctx.moveTo(plank * 80, 470);
+      ctx.lineTo(plank * 80, 720);
+      ctx.stroke();
+    }
     button(ctx, C.menu.back, "<", false);
-    label(ctx, "Choose a berth", 640, 56, 32, P.paper, "center");
+    ctx.font = displayFont(40);
+    ctx.fillStyle = P.paper;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = P.ink;
+    ctx.strokeText("Choose a berth", 640, 56);
+    ctx.fillText("Choose a berth", 640, 56);
     C.MAP_ORDER.forEach(function (id, index) {
       var card = C.cardRect(index);
       var map = C.MAPS[id];
