@@ -8,7 +8,15 @@ Cleatpin is a cartoon maritime tower defense about a small wreck-salvage dock. B
 
 **Target platform:** CrazyGames, original HTML5, English UI, Basic Launch first. A later client is intended as lightweight Canvas 2D, with relative paths, for desktop Chrome and Edge, plus touch, in landscape.
 
-**Status:** Design only. This repository is not playable. There is no game client, no engine code, and no production art. Implementation starts only after this design is committed.
+**Status:** v1 Basic Launch is playable in this folder. v2 and v3 stay design-only.
+
+## Play v1
+
+Open `index.html` in Chrome or Edge. Double-click the file, or from this folder run `python3 -m http.server 8080` and open `http://localhost:8080`. There is no install step.
+
+The board is landscape. On a phone, turn it sideways. Mouse, keyboard, and touch all work. Keys `1`–`4` select the pouch, `H` arms Heave Hawser, `C` plants a floating cleat, Space calls the tide, Esc pauses. There is no fullscreen button; the browser owns that.
+
+Pin what breaks into a socket. A steady clear of Pilot Cove takes about two to three minutes.
 
 **Design lock:** 24 November 2026. These files are the working copy of that lock: the Cleatpin salvage hook, Kingdom Rush structure without a reskin, the dock lore, CrazyGames constraints, and localStorage as the only save. Three versions are planned. No fourth version is scheduled.
 
@@ -16,7 +24,10 @@ Cleatpin is a cartoon maritime tower defense about a small wreck-salvage dock. B
 
 | File | What it decides |
 | --- | --- |
-| [README.md](README.md) | Pitch, status, and where to read next. |
+| [index.html](index.html) | Playable v1 client. |
+| [js/](js/) | Canvas 2D client for v1. |
+| [test/v1.js](test/v1.js) | Headless sim check: `node test/v1.js`. |
+| [README.md](README.md) | Pitch, how to play, and where to read next. |
 | [LORE.md](LORE.md) | Tone, in-game intro, blurbs, and every player-facing string. |
 | [RULES.md](RULES.md) | Mechanics and numbers. Authoritative for anything that changes play. |
 | [DESIGN.md](DESIGN.md) | Version split, UI layout, and wave scripts. Authoritative for what ships when. |

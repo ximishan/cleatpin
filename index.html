@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cleatpin</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #1B4B6B;
+      color: #F3E6C8;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    canvas {
+      touch-action: none;
+      background: #1B4B6B;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="board" width="1280" height="720">Cleatpin</canvas>
+  <script src="js/engine.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
