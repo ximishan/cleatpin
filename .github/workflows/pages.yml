@@ -1,6 +1,7 @@
 # Publish the playable v1 client to GitHub Pages.
-# The site is only index.html and js/. Script tags stay relative, so they
-# resolve under https://ximishan.github.io/cleatpin/ without a base-path rewrite.
+# Upload and deploy are separate jobs. deploy-pages lists artifacts only after
+# the uploading job has finished; doing both in one job finds zero artifacts.
+# The site is only index.html and js/. Script tags stay relative.
 name: Deploy GitHub Pages
 
 on:
@@ -20,17 +21,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
 
       - name: Assemble playable site
         run: |
@@ -43,6 +38,13 @@ jobs:
         with:
           path: _site
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
