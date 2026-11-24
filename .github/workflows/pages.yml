@@ -1,7 +1,7 @@
 # Publish the playable v1 client to GitHub Pages.
 # Upload and deploy are separate jobs. deploy-pages lists artifacts only after
 # the uploading job has finished; doing both in one job finds zero artifacts.
-# The site is only index.html and js/. Script tags stay relative.
+# The site is index.html, js/, and the bundled fonts. Paths stay relative.
 name: Deploy GitHub Pages
 
 on:
@@ -29,9 +29,10 @@ jobs:
 
       - name: Assemble playable site
         run: |
-          mkdir -p _site/js
+          mkdir -p _site/js _site/fonts
           cp index.html _site/index.html
           cp js/engine.js js/ui.js js/main.js _site/js/
+          cp fonts/Baloo2-700.woff2 fonts/Nunito-700.woff2 _site/fonts/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
