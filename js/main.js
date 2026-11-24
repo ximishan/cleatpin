@@ -46,11 +46,18 @@
     if (view.portrait) return;
     var p = logical(ev);
     if (view.screen !== "play" || !view.match) {
-      if (phase !== "up") return;
       var hit = C.uiHit(view, p.x, p.y);
+      if (view.screen === "settings" && hit && hit.id === "slider" && (phase === "down" || phase === "move")) {
+        view.save.settings[hit.key] = hit.value;
+        writeSave(view.save);
+        return;
+      }
+      if (phase !== "up") return;
       if (!hit) return;
       if (hit.id === "play") {
         view.screen = view.save.seenIntro ? "select" : "intro";
+      } else if (hit.id === "settings") {
+        view.screen = "settings";
       } else if (hit.id === "boards") {
         view.save.seenIntro = true;
         writeSave(view.save);

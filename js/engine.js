@@ -1580,6 +1580,12 @@
       }
       return;
     }
+    var tapped = nearestSocket(m, x, y, 22);
+    if (tapped && tapped.head) {
+      m.inspect = { kind: "socket", id: tapped.id };
+      if (tapped.broken) toast(m, COPY.repairHint);
+      return;
+    }
     if (m.reed.state === "up") {
       var walk = project(m.map.boards, x, y, 48);
       if (walk) {

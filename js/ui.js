@@ -3,6 +3,10 @@
   "use strict";
   var C = root.Cleatpin;
   var P = C.PAL;
+  C.menu.settingsButton = { x: 500, y: 588, w: 280, h: 64 };
+  C.menu.settingsMusic = { x: 440, y: 260, w: 400, h: 28 };
+  C.menu.settingsSfx = { x: 440, y: 340, w: 400, h: 28 };
+  C.menu.settingsDone = { x: 500, y: 450, w: 280, h: 56 };
 
   function font(px) {
     return "700 " + px + "px Trebuchet MS, Segoe UI, sans-serif";
@@ -126,35 +130,62 @@
     ctx.restore();
   }
 
-  function drawReed(ctx, x, y, down) {
+  function drawReed(ctx, x, y, down, scale) {
     ctx.save();
     ctx.translate(x, y);
+    ctx.scale(scale || 1, scale || 1);
     ctx.lineWidth = 4;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
     ctx.strokeStyle = P.ink;
+    ctx.fillStyle = P.tar;
+    ctx.fillRect(-8, 16, 8, 8);
+    ctx.fillRect(2, 16, 8, 8);
+    ctx.strokeRect(-8, 16, 8, 8);
+    ctx.strokeRect(2, 16, 8, 8);
     ctx.fillStyle = P.ochre;
-    ctx.fillRect(-14, -8, 28, 26);
-    ctx.strokeRect(-14, -8, 28, 26);
-    ctx.fillStyle = P.skin;
     ctx.beginPath();
-    ctx.arc(0, -18, 10, 0, Math.PI * 2);
+    ctx.moveTo(-16, -4);
+    ctx.lineTo(16, -4);
+    ctx.lineTo(18, 18);
+    ctx.lineTo(-14, 18);
+    ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = P.teal;
-    ctx.fillRect(-11, -30, 22, 10);
-    ctx.strokeRect(-11, -30, 22, 10);
-    ctx.strokeStyle = P.wood;
-    ctx.lineWidth = 4;
+    ctx.fillStyle = P.signal;
+    ctx.fillRect(-5, -2, 10, 7);
+    ctx.strokeRect(-5, -2, 10, 7);
+    ctx.fillStyle = P.skin;
     ctx.beginPath();
-    ctx.moveTo(8, -6);
-    ctx.lineTo(down ? 20 : 16, down ? -10 : -36);
+    ctx.arc(0, -14, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = P.ink;
+    ctx.beginPath();
+    ctx.arc(-4, -15, 1.6, 0, Math.PI * 2);
+    ctx.arc(4, -15, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = P.teal;
+    ctx.fillRect(-12, -28, 24, 12);
+    ctx.strokeRect(-12, -28, 24, 12);
+    ctx.strokeStyle = P.wood;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    if (down) {
+      ctx.moveTo(-6, 4);
+      ctx.lineTo(22, 8);
+    } else {
+      ctx.moveTo(6, -2);
+      ctx.lineTo(14, -34);
+    }
     ctx.stroke();
     ctx.strokeStyle = P.iron;
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(16, -36);
-    ctx.lineTo(24, -30);
+    ctx.moveTo(14, -34);
+    ctx.lineTo(24, -28);
+    ctx.lineTo(18, -24);
     ctx.stroke();
-    ctx.fillStyle = P.signal;
-    ctx.fillRect(-4, -8, 8, 6);
     ctx.restore();
   }
 
@@ -273,75 +304,106 @@
     ctx.restore();
   }
 
+  function hullPath(ctx, w, h) {
+    ctx.beginPath();
+    ctx.moveTo(-w, -h * 0.2);
+    ctx.lineTo(-w * 0.72, h);
+    ctx.lineTo(w * 0.55, h);
+    ctx.lineTo(w, -h * 0.15);
+    ctx.quadraticCurveTo(w * 0.2, -h, -w * 0.2, -h * 0.85);
+    ctx.closePath();
+  }
+
+  function bowFace(ctx, x) {
+    ctx.fillStyle = P.ink;
+    ctx.beginPath();
+    ctx.arc(x - 5, -1, 1.7, 0, Math.PI * 2);
+    ctx.arc(x + 3, -1, 1.7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x - 4, 4);
+    ctx.lineTo(x + 3, 4);
+    ctx.stroke();
+  }
+
   function drawEnemy(ctx, e, time) {
     var bob = Math.sin(time * 4 + e.id) * 2;
     ctx.save();
-    ctx.translate(e.x, e.y + (e.ground ? bob : bob - 26));
+    ctx.translate(e.x, e.y + (e.ground ? bob : bob - 28));
     ctx.lineWidth = 4;
     ctx.strokeStyle = e.flash > 0 ? P.paper : P.ink;
     ctx.lineJoin = "round";
-    ctx.fillStyle = P.seaMid;
     if (e.kind === "skiff") {
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 22, 12, 0, 0, Math.PI * 2);
+      ctx.fillStyle = P.seaMid;
+      hullPath(ctx, 24, 11);
       ctx.fill();
       ctx.stroke();
+      bowFace(ctx, 6);
     } else if (e.kind === "dinghy") {
       ctx.fillStyle = P.white;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 30, 10, 0, 0, Math.PI * 2);
+      hullPath(ctx, 32, 10);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = P.signal;
-      ctx.fillRect(-8, -3, 16, 4);
+      ctx.fillRect(-6, -2, 18, 4);
+      bowFace(ctx, 8);
     } else if (e.kind === "bargeWhite" || e.kind === "bargeRed") {
       ctx.fillStyle = P.wood;
-      ctx.fillRect(-28, -8, 56, 16);
-      ctx.strokeRect(-28, -8, 56, 16);
+      ctx.fillRect(-32, -6, 64, 18);
+      ctx.strokeRect(-32, -6, 64, 18);
       var band = e.kind === "bargeRed" ? P.signal : P.white;
       for (var i = -1; i <= 1; i++) {
         ctx.fillStyle = P.rope;
         ctx.beginPath();
-        ctx.arc(i * 14, -12, 7, 0, Math.PI * 2);
+        ctx.arc(i * 16, -14, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
       }
       ctx.fillStyle = band;
-      ctx.fillRect(-6, -16, 8, 4);
+      ctx.fillRect(-8, -18, 12, 5);
+      bowFace(ctx, 10);
     } else if (e.kind === "kite") {
       ctx.fillStyle = P.kite;
       ctx.beginPath();
-      ctx.moveTo(0, -18);
-      ctx.lineTo(14, 0);
-      ctx.lineTo(0, 16);
-      ctx.lineTo(-14, 0);
+      ctx.moveTo(0, -22);
+      ctx.lineTo(16, 0);
+      ctx.lineTo(0, 18);
+      ctx.lineTo(-16, 0);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
+      ctx.strokeStyle = P.seaDeep;
       ctx.beginPath();
-      ctx.moveTo(0, 16);
-      ctx.lineTo(0, 36);
+      ctx.moveTo(0, -22);
+      ctx.lineTo(0, 18);
+      ctx.moveTo(-16, 0);
+      ctx.lineTo(16, 0);
       ctx.stroke();
+      ctx.strokeStyle = P.ink;
+      ctx.beginPath();
+      ctx.moveTo(0, 18);
+      ctx.lineTo(0, 40);
+      ctx.stroke();
+      bowFace(ctx, 0);
     } else if (e.kind === "cutter") {
       ctx.fillStyle = P.seaweed;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 28, 11, 0, 0, Math.PI * 2);
+      hullPath(ctx, 30, 12);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = P.plank;
       for (var t = 0; t < 4; t++) {
         ctx.beginPath();
-        ctx.moveTo(18 + t * 4, -4);
-        ctx.lineTo(26 + t * 4, 0);
-        ctx.lineTo(18 + t * 4, 4);
+        ctx.moveTo(16 + t * 5, -5);
+        ctx.lineTo(26 + t * 5, 0);
+        ctx.lineTo(16 + t * 5, 5);
+        ctx.closePath();
         ctx.fill();
+        ctx.stroke();
       }
+      bowFace(ctx, 2);
     }
-    ctx.fillStyle = P.ink;
-    ctx.beginPath();
-    ctx.arc(-6, -1, 1.5, 0, Math.PI * 2);
-    ctx.arc(2, -1, 1.5, 0, Math.PI * 2);
-    ctx.fill();
     ctx.restore();
   }
 
@@ -371,24 +433,69 @@
   function ring(ctx, x, y, radius) {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(243,230,200,0.7)";
+    ctx.strokeStyle = "rgba(28,36,48,0.85)";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(215,164,65,0.95)";
     ctx.lineWidth = 2;
     ctx.stroke();
   }
 
-  function drawWorld(ctx, m) {
-    ctx.fillStyle = "#C9E4EE";
+  function drawSkyAndWater(ctx) {
+    ctx.fillStyle = "#E7F4F6";
     ctx.fillRect(0, 0, 1280, 720);
+    ctx.fillStyle = P.brass;
+    ctx.beginPath();
+    ctx.arc(180, 110, 28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = P.seaweed;
+    ctx.beginPath();
+    ctx.moveTo(0, 210);
+    ctx.lineTo(80, 150);
+    ctx.lineTo(180, 190);
+    ctx.lineTo(260, 140);
+    ctx.lineTo(260, 230);
+    ctx.lineTo(0, 230);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = P.wood;
+    ctx.beginPath();
+    ctx.moveTo(1020, 220);
+    ctx.lineTo(1140, 150);
+    ctx.lineTo(1280, 200);
+    ctx.lineTo(1280, 240);
+    ctx.lineTo(1020, 240);
+    ctx.fill();
+    ctx.stroke();
     ctx.fillStyle = P.seaMid;
-    ctx.fillRect(0, 180, 1280, 220);
+    ctx.fillRect(0, 220, 1280, 180);
     ctx.fillStyle = P.seaDeep;
     ctx.fillRect(0, 400, 1280, 320);
+    ctx.strokeStyle = "rgba(247,251,252,0.85)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (var i = 0; i < 16; i++) {
+      ctx.moveTo(i * 80, 228);
+      ctx.quadraticCurveTo(i * 80 + 20, 218, i * 80 + 40, 228);
+    }
+    ctx.stroke();
+  }
+
+  function drawWorld(ctx, m) {
+    drawSkyAndWater(ctx);
     Object.keys(m.map.paths).forEach(function (id) {
+      strokePath(ctx, m.map.paths[id], 64, P.ink);
       strokePath(ctx, m.map.paths[id], 54, "#164863");
-      strokePath(ctx, m.map.paths[id], 8, "rgba(247,251,252,0.35)");
+      strokePath(ctx, m.map.paths[id], 10, "rgba(247,251,252,0.45)");
     });
+    strokePath(ctx, m.map.boards, 34, P.ink);
     strokePath(ctx, m.map.boards, 26, P.plank);
-    strokePath(ctx, m.map.boards, 4, P.wood);
+    strokePath(ctx, m.map.boards, 3, P.wood);
 
     m.berths.forEach(function (b) {
       if (b.used) return;
@@ -453,7 +560,7 @@
       ctx.fillRect(s.x - 3, s.y - 3, 6, 6);
     });
 
-    if (m.reed.state !== "absent") drawReed(ctx, m.reed.x, m.reed.y, m.reed.state === "down");
+    if (m.reed.state !== "absent") drawReed(ctx, m.reed.x, m.reed.y, m.reed.state === "down", 1);
 
     m.pickups.forEach(function (p) {
       drawFitting(ctx, p.family === "pin" ? "pin1" : p.family === "spray" ? "spray1" : p.family === "net" ? "net1" : p.family === "bell" ? "bell1" : "boll1", p.x, p.y);
@@ -470,6 +577,19 @@
       ctx.fillRect(c.x, c.y, 5, 4);
     });
 
+    if (m.selected != null && m.pouch[m.selected] && !m.modal) {
+      var fam = m.pouch[m.selected].family;
+      var previewId = fam === "pin" ? "pin1" : fam === "spray" ? "spray1" : fam === "net" ? "net1" : fam === "bell" ? "bell1" : "boll1";
+      var previewRange = C.HEADS[previewId].range;
+      m.sockets.forEach(function (s) {
+        if (s.head) return;
+        if (fam === "bollard" && s.kind !== "edge") return;
+        ctx.save();
+        ctx.globalAlpha = 0.55;
+        ring(ctx, s.x, s.y, previewRange);
+        ctx.restore();
+      });
+    }
     if (m.inspect && m.inspect.kind === "socket") {
       var sock = null;
       m.sockets.forEach(function (s) { if (s.id === m.inspect.id) sock = s; });
@@ -479,11 +599,13 @@
         var text = C.headName(sock.head);
         var blurb = sock.broken ? C.COPY.repairHint : C.headBlurb(sock.head);
         ctx.fillStyle = P.paper;
-        ctx.fillRect(sock.x - 110, sock.y - 78, 220, 46);
+        ctx.fillRect(sock.x - 120, sock.y - 92, 240, 70);
+        ctx.lineWidth = 3;
         ctx.strokeStyle = P.ink;
-        ctx.strokeRect(sock.x - 110, sock.y - 78, 220, 46);
-        label(ctx, text, sock.x, sock.y - 64, 16, P.ink, "center");
-        label(ctx, blurb.slice(0, 42), sock.x, sock.y - 44, 12, P.ink, "center");
+        ctx.strokeRect(sock.x - 120, sock.y - 92, 240, 70);
+        label(ctx, text, sock.x, sock.y - 74, 16, P.ink, "center");
+        ctx.textAlign = "center";
+        wrap(ctx, blurb, sock.x - 108, sock.y - 62, 216, 13, P.ink, 16);
       }
     }
     if (m.inspect && m.inspect.kind === "berth") {
@@ -507,8 +629,16 @@
 
   function drawHud(ctx, m) {
     var i;
+    ctx.fillStyle = "rgba(243,230,200,0.94)";
+    ctx.fillRect(0, 0, 1280, 76);
+    ctx.fillStyle = P.wood;
+    ctx.fillRect(0, 72, 1280, 6);
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, 0, 1280, 76);
+    label(ctx, "Hull", 16, 16, 14, P.ink, "left");
     for (i = 0; i < 10; i++) {
-      var x = 16 + i * 22;
+      var x = 62 + i * 22;
       var lost = i >= m.hull;
       ctx.fillStyle = lost ? "transparent" : (m.hull <= 3 ? P.signal : P.teal);
       ctx.strokeStyle = P.ink;
@@ -544,6 +674,18 @@
     ctx.fillStyle = P.ink;
     ctx.fillRect(1222, 18, 8, 36);
     ctx.fillRect(1238, 18, 8, 36);
+    ctx.fillStyle = P.plank;
+    ctx.fillRect(0, 608, 1280, 112);
+    ctx.fillStyle = P.wood;
+    ctx.fillRect(0, 608, 1280, 8);
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, 608);
+    ctx.lineTo(1280, 608);
+    ctx.stroke();
+    label(ctx, "Pouch", 16, 620, 13, P.ink, "left");
+    label(ctx, "Pegs " + m.pegs, 448, 622, 16, P.ink, "left");
 
     for (i = 0; i < 4; i++) {
       var sx = 16 + i * 80;
@@ -570,8 +712,7 @@
     ctx.strokeStyle = P.ink;
     ctx.strokeRect(362, 634, 68, 68);
     label(ctx, "Locker", 396, 700, 12, P.paper, "center");
-    drawPip(ctx, 396, 650, Math.floor(m.time * 2));
-    label(ctx, "Pegs " + m.pegs, 500, 668, 20, P.ink, "left");
+    drawPip(ctx, 396, 648, Math.floor(m.time * 2));
     for (i = 0; i < m.cleatsLeft; i++) {
       var cx = 568 + i * 36;
       ctx.strokeStyle = P.iron;
@@ -590,7 +731,7 @@
     ctx.strokeStyle = P.ink;
     ctx.lineWidth = 2;
     ctx.strokeRect(1090, 638, 60, 60);
-    if (m.reed.state !== "absent") drawReed(ctx, 1120, 674, m.reed.state === "down");
+    if (m.reed.state !== "absent") drawReed(ctx, 1120, 682, m.reed.state === "down", 0.55);
     else label(ctx, "Reed", 1120, 668, 14, P.ink, "center");
     if (m.reed.state === "down") label(ctx, String(Math.ceil(m.reed.downT)), 1120, 648, 16, P.signal, "center");
 
@@ -609,6 +750,7 @@
         ctx.closePath();
         ctx.fill();
       }
+      label(ctx, "Heave", 1224, 678, 12, P.paper, "center");
       label(ctx, "Hawser", 1224, 692, 12, P.paper, "center");
     }
 
@@ -702,26 +844,42 @@
   }
 
   function drawTitle(ctx) {
-    ctx.fillStyle = "#C9E4EE";
-    ctx.fillRect(0, 0, 1280, 720);
-    ctx.fillStyle = P.seaMid;
-    ctx.fillRect(0, 300, 1280, 180);
-    ctx.fillStyle = P.seaDeep;
-    ctx.fillRect(0, 480, 1280, 240);
+    drawSkyAndWater(ctx);
     ctx.fillStyle = P.plank;
-    ctx.fillRect(0, 430, 1280, 36);
+    ctx.fillRect(0, 500, 1280, 220);
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, 500);
+    ctx.lineTo(1280, 500);
+    ctx.stroke();
     ctx.strokeStyle = P.wood;
     ctx.lineWidth = 3;
     for (var i = 0; i < 16; i++) {
       ctx.beginPath();
-      ctx.moveTo(i * 80, 430);
-      ctx.lineTo(i * 80, 466);
+      ctx.moveTo(i * 80, 500);
+      ctx.lineTo(i * 80, 720);
       ctx.stroke();
     }
-    drawWordmark(ctx, 300, 130, 9);
-    drawPip(ctx, 780, 150, 0);
-    label(ctx, C.COPY.logline, 640, 250, 22, P.ink, "center");
+    panel(ctx, 250, 70, 780, 200);
+    drawWordmark(ctx, 310, 90, 8);
+    drawPip(ctx, 900, 130, 0);
+    label(ctx, C.COPY.logline, 640, 210, 20, P.ink, "center");
     button(ctx, C.menu.titlePlay, "Play", true);
+    button(ctx, C.menu.settingsButton, "Settings", false);
+  }
+
+  function drawSettings(ctx, save) {
+    drawSkyAndWater(ctx);
+    panel(ctx, 340, 120, 600, 400);
+    label(ctx, "Settings", 640, 170, 32, P.ink, "center");
+    label(ctx, "Music", C.menu.settingsMusic.x, C.menu.settingsMusic.y - 16, 18, P.ink, "left");
+    slider(ctx, C.menu.settingsMusic, save.settings.music);
+    label(ctx, "Effects", C.menu.settingsSfx.x, C.menu.settingsSfx.y - 16, 18, P.ink, "left");
+    slider(ctx, C.menu.settingsSfx, save.settings.sfx);
+    label(ctx, "Saved on this dock.", 640, 430, 16, P.ink, "center");
+    button(ctx, C.menu.back, "<", false);
+    button(ctx, C.menu.settingsDone, "Title", true);
   }
 
   function drawIntro(ctx) {
@@ -733,6 +891,59 @@
     panel(ctx, p.x, p.y, p.w, p.h);
     wrap(ctx, C.COPY.intro, p.x + 36, p.y + 36, p.w - 72, 22, P.ink, 32);
     button(ctx, C.menu.introButton, "To the boards", true);
+  }
+
+  function drawMapThumb(ctx, map, x, y, w, h) {
+    var minX = 1e9;
+    var minY = 1e9;
+    var maxX = -1e9;
+    var maxY = -1e9;
+    function grow(px, py) {
+      if (px < minX) minX = px;
+      if (py < minY) minY = py;
+      if (px > maxX) maxX = px;
+      if (py > maxY) maxY = py;
+    }
+    Object.keys(map.paths).forEach(function (id) {
+      map.paths[id].points.forEach(function (p) { grow(p.x, p.y); });
+    });
+    map.sockets.forEach(function (s) { grow(s.x, s.y); });
+    var spanX = Math.max(1, maxX - minX);
+    var spanY = Math.max(1, maxY - minY);
+    var scale = Math.min((w - 28) / spanX, (h - 28) / spanY);
+    function tx(px) { return x + 14 + (px - minX) * scale; }
+    function ty(py) { return y + 14 + (py - minY) * scale; }
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+    ctx.fillStyle = P.seaMid;
+    ctx.fillRect(x, y, w, h);
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    Object.keys(map.paths).forEach(function (id) {
+      ctx.beginPath();
+      map.paths[id].points.forEach(function (p, i) {
+        if (i === 0) ctx.moveTo(tx(p.x), ty(p.y));
+        else ctx.lineTo(tx(p.x), ty(p.y));
+      });
+      ctx.strokeStyle = P.ink;
+      ctx.lineWidth = 8;
+      ctx.stroke();
+      ctx.strokeStyle = P.plank;
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    });
+    map.sockets.forEach(function (s) {
+      ctx.beginPath();
+      ctx.arc(tx(s.x), ty(s.y), 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = P.brass;
+      ctx.fill();
+      ctx.strokeStyle = P.ink;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+    ctx.restore();
   }
 
   function drawSelect(ctx, save) {
@@ -751,8 +962,7 @@
       ctx.lineWidth = 4;
       ctx.strokeStyle = P.ink;
       ctx.strokeRect(card.x + 2, card.y + 2, card.w - 4, card.h - 4);
-      ctx.fillStyle = P.seaMid;
-      ctx.fillRect(card.x + 12, card.y + 12, card.w - 24, 120);
+      drawMapThumb(ctx, map, card.x + 12, card.y + 12, card.w - 24, 120);
       label(ctx, map.name, card.x + card.w / 2, card.y + 160, 24, P.ink, "center");
       for (var s = 0; s < 3; s++) drawStar(ctx, card.x + 120 + s * 36, card.y + 196, s < (rec.campaignStars || 0));
       if (locked) {
@@ -779,6 +989,7 @@
     }
     if (view.screen === "title") drawTitle(ctx);
     else if (view.screen === "intro") drawIntro(ctx);
+    else if (view.screen === "settings") drawSettings(ctx, view.save);
     else if (view.screen === "select") drawSelect(ctx, view.save);
     else if (view.match) {
       drawWorld(ctx, view.match);
@@ -792,6 +1003,16 @@
       return r && x >= r.x && y >= r.y && x <= r.x + r.w && y <= r.y + r.h;
     }
     if (view.screen === "title" && inside(C.menu.titlePlay)) return { id: "play" };
+    if (view.screen === "title" && inside(C.menu.settingsButton)) return { id: "settings" };
+    if (view.screen === "settings") {
+      if (inside(C.menu.back) || inside(C.menu.settingsDone)) return { id: "title" };
+      if (inside(C.menu.settingsMusic)) {
+        return { id: "slider", key: "music", value: Math.max(0, Math.min(1, (x - C.menu.settingsMusic.x) / C.menu.settingsMusic.w)) };
+      }
+      if (inside(C.menu.settingsSfx)) {
+        return { id: "slider", key: "sfx", value: Math.max(0, Math.min(1, (x - C.menu.settingsSfx.x) / C.menu.settingsSfx.w)) };
+      }
+    }
     if (view.screen === "intro" && inside(C.menu.introButton)) return { id: "boards" };
     if (view.screen === "select") {
       if (inside(C.menu.back)) return { id: "title" };
