@@ -12,7 +12,9 @@ Cleatpin is a cartoon maritime tower defense about a small wreck-salvage dock. B
 
 ## Play v1
 
-Open `index.html` in Chrome or Edge. Double-click the file, or from this folder run `python3 -m http.server 8080` and open `http://localhost:8080`. There is no install step.
+**On the web:** [https://ximishan.github.io/cleatpin/](https://ximishan.github.io/cleatpin/). That address is the project Pages URL. It is not live yet. GitHub Pages is not enabled on this private repository, and the deploy workflow has to be on `main` before it can run. After this change is merged, open **Settings → Pages** and set **Source** to **GitHub Actions**. Then the workflow runs on every push to `main`, and it can also be started by hand from the Actions tab. A private repository on GitHub Free cannot publish Pages. GitHub Pro, Team, or Enterprise can publish a private site that asks visitors to sign in. Making the repository public is what turns that URL into a page anyone can open.
+
+**On your computer:** Open `index.html` in Chrome or Edge. Double-click the file, or from this folder run `python3 -m http.server 8080` and open `http://localhost:8080`. There is no install step. Script paths are relative (`js/engine.js` and the other two files), so the same files work locally and on Pages.
 
 The board is landscape. On a phone, turn it sideways. Mouse, keyboard, and touch all work. Keys `1`–`4` select the pouch, `H` arms Heave Hawser, `C` plants a floating cleat, Space calls the tide, Esc pauses. There is no fullscreen button; the browser owns that.
 
@@ -25,6 +27,7 @@ Pin what breaks into a socket. A steady clear of Pilot Cove takes about two to t
 | File | What it decides |
 | --- | --- |
 | [index.html](index.html) | Playable v1 client. |
+| [.github/workflows/pages.yml](.github/workflows/pages.yml) | Publishes that client to GitHub Pages. |
 | [js/](js/) | Canvas 2D client for v1. |
 | [test/v1.js](test/v1.js) | Headless sim check: `node test/v1.js`. |
 | [README.md](README.md) | Pitch, how to play, and where to read next. |
